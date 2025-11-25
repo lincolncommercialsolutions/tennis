@@ -732,9 +732,7 @@ function checkWin() {
       isTouching = false;
       startTime = null;
       timerEl.textContent = "00:00";
-      selectedLayout = null;
-      layoutSelect.classList.remove('hidden');
-      document.body.classList.remove('mobile-layout');
+      // Don't reset layout - keep the same layout for next game
     }, 4000);
   }
 }
