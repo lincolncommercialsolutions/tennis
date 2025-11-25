@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tennis - Touch & Play</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#f0f0f0;
+    font-family:Arial, sans-serif;
+    overflow:hidden;
+    touch-action: manipulation;
+  }
+  #gameContainer {
+    position:relative;
+    width:100vw;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+  }
+  canvas {
+    background:white;
+    border:3px solid #333;
+    border-radius:12px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.3);
+    max-width:95vw;
+    max-height:95vh;
+  }
+  #startScreen {
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background:rgba(0,0,0,0.7);
+    color:white;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    font-size:24px;
+    z-index:10;
+  }
+  #startScreen h1 { font-size:48px; margin-bottom:20px; }
+  #startScreen p { margin:10px 0; text-align:center; max-width:80%; }
+  #score {
+    position:absolute;
+    top:15px;
+    left:0; right:0;
+    color:#333;
+    font-size:32px;
+    font-weight:bold;
+    text-align:center;
+    z-index:5;
+  }
+  .hidden { display:none; }
+</style>
+</head>
+<body>
+
+<div id="gameContainer">
+  <canvas id="gameCanvas"></canvas>
+  
+  <div id="score">Player: 0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Computer: 0</div>
+  
+  <div id="startScreen">
+    <h1>Tennis</h1>
+    <p>Tap to Start</p>
+    <p style="font-size:18px;">Desktop: ← → or A/D<br>Mobile: Touch & drag on your side</p>
+  </div>
+</div>
+
+<script>
+// Responsive canvas
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const scoreDisplay = document.getElementById('score');
+const startScreen = document.getElementById('startScreen');
+
+let scale = Math.min(window.innerWidth / 800, window.innerHeight / 500);
+canvas.width = 800 * scale;
+canvas.height = 500 * scale;
+
+// Game variables
+const PADDLE_HEIGHT = 140;
+const PADDLE_WIDTH = 20;
+const BALL_RADIUS = 16;
+const PADDLE_SPEED = 10;
+const AI_SPEED = 6.2;
+
+let ballX = canvas.width / 2;
+let ballY = canvas.height / 2;
+let ballVelX = 7 * scale;
+let ballVelY = 0;
+
+let playerY = canvas.height / 2 - PADDLE_HEIGHT / 2;
+let computerY = canvas.height / 2 - PADDLE_HEIGHT / 2;
+
+let playerScore = 0;
+let computerScore = 0;
+let gameStarted = false;
+
+// Touch/mouse control
+let touchY = canvas.height / 2;
+let isTouching = false;
+
+function startGame() {
+  if (gameStarted) return;
+  gameStarted = true;
+  startScreen.classList.add('hidden');
+  resetBall();
+  requestAnimationFrame(gameLoop);
+}
+
+// Touch & Mouse Controls
+canvas.addEventListener('touchstart', handleTouch);
+canvas.addEventListener('touchmove', handleTouch);
+canvas.addEventListener('mousedown', handleTouch);
+canvas.addEventListener('mousemove', (e) => {
+  if (e.buttons === 1) handleTouch(e);
+});
+startScreen.addEventListener('click', startGame);
+startScreen.addEventListener('touchstart', (e) => { e.preventDefault(); startGame(); });
+
+function handleTouch(e) {
+  e.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  const touch = e.touches ? e.touches[0] : e;
+  const x = touch.clientX - rect.left;
+  
+  // Only control if touching the right half (player side)
+  if (x > canvas.width / 2) {
+    touchY = touch.clientY - rect.top;
+    isTouching = true;
+  }
+}
+
+// Keyboard fallback
+document.addEventListener('keydown', e => {
+  if (!gameStarted) return;
+  if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') touchY -= 50;
+  if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') touchY += 50;
+});
+
+function movePlayer() {
+  if (isTouching) {
+    playerY = touchY - PADDLE_HEIGHT / 2;
+  }
+  
+  // Clamp to bounds
+  if (playerY < 0) playerY = 0;
+  if (playerY > canvas.height - PADDLE_HEIGHT) playerY = canvas.height - PADDLE_HEIGHT;
+}
+
+function moveComputer() {
+  const paddleCenter = computerY + PADDLE_HEIGHT / 2;
+  const diff = ballY - paddleCenter;
+  
+  if (Math.abs(diff) > 8) {
+    computerY += diff > 0 ? AI_SPEED * scale : -AI_SPEED * scale;
+  }
+  
+  if (computerY < 0) computerY = 0;
+  if (computerY > canvas.height - PADDLE_HEIGHT) computerY = canvas.height - PADDLE_HEIGHT;
+}
+
+function draw() {
+  ctx.fillStyle = 'white';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Center line
+  ctx.strokeStyle = '#eee';
+  ctx.lineWidth = 4;
+  ctx.setLineDash([15, 15]);
+  ctx.beginPath();
+  ctx.moveTo(canvas.width / 2, 0);
+  ctx.lineTo(canvas.width / 2, canvas.height);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Paddles
+  ctx.fillStyle = 'black';
+  ctx.fillRect(40 * scale, computerY, PADDLE_WIDTH * scale, PADDLE_HEIGHT);
+  ctx.fillRect(canvas.width - 60 * scale, playerY, PADDLE_WIDTH * scale, PADDLE_HEIGHT);
+
+  // Ball
+  ctx.beginPath();
+  ctx.arc(ballX, ballY, BALL_RADIUS * scale, 0, Math.PI * 2);
+  ctx.fillStyle = '#0066ff';
+  ctx.fill();
+  ctx.strokeStyle = '#0033aa';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+}
+
+function update() {
+  if (!gameStarted) return;
+  
+  movePlayer();
+  moveComputer();
+
+  ballX += ballVelX;
+  ballY += ballVelY;
+
+  // Top/bottom bounce
+  if (ballY - BALL_RADIUS * scale <= 0 || ballY + BALL_RADIUS * scale >= canvas.height) {
+    ballVelY = -ballVelY;
+  }
+
+  // Paddle hits
+  if (
+    ballX - BALL_RADIUS * scale <= 60 * scale &&
+    ballY >= computerY && ballY <= computerY + PADDLE_HEIGHT &&
+    ballVelX < 0
+  ) {
+    ballVelX = -ballVelX * 1.06;
+    let hitPos = (ballY - (computerY + PADDLE_HEIGHT/2)) / (PADDLE_HEIGHT/2);
+    ballVelY = hitPos * -12 * scale;
+  }
+
+  if (
+    ballX + BALL_RADIUS * scale >= canvas.width - 60 * scale &&
+    ballY >= playerY && ballY <= playerY + PADDLE_HEIGHT &&
+    ballVelX > 0
+  ) {
+    ballVelX = -ballVelX * 1.06;
+    let hitPos = (ballY - (playerY + PADDLE_HEIGHT/2)) / (PADDLE_HEIGHT/2);
+    ballVelY = hitPos * -12 * scale;
+  }
+
+  // Scoring
+  if (ballX < 0) { playerScore++; resetBall(1); }
+  if (ballX > canvas.width) { computerScore++; resetBall(-1); }
+
+  scoreDisplay.textContent = `Player: ${playerScore}      Computer: ${computerScore}`;
+
+  if (playerScore >= 10 || computerScore >= 10) {
+    setTimeout(() => {
+      alert(playerScore >= 10 ? "You Win!" : "Computer Wins!");
+      playerScore = computerScore = 0;
+      resetBall();
+    }, 200);
+  }
+}
+
+function resetBall(direction = 0) {
+  ballX = canvas.width / 2;
+  ballY = canvas.height / 2;
+  ballVelX = (direction || (Math.random() > 0.5 ? 1 : -1)) * 7 * scale;
+  ballVelY = (Math.random() - 0.5) * 10 * scale;
+}
+
+function gameLoop() {
+  update();
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+
+// Handle resize
+window.addEventListener('resize', () => {
+  scale = Math.min(window.innerWidth / 800, window.innerHeight / 500);
+  canvas.width = 800 * scale;
+  canvas.height = 500 * scale;
+});
+
+gameLoop(); // draws start screen
+</script>
+</body>
+</html>
