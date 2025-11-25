@@ -56,16 +56,12 @@
     font-size: 20px;
     font-weight: bold;
     color: white;
-    text-shadow: 
-      0 0 10px rgba(0, 221, 255, 0.8),
-      0 0 20px rgba(0, 221, 255, 0.6),
-      0 0 30px rgba(0, 221, 255, 0.4),
-      0 0 40px rgba(0, 136, 255, 0.3);
+    text-shadow: none;
     margin-top: 15px;
     letter-spacing: 3px;
     z-index: 10;
-    animation: titlePulse 3s ease-in-out infinite;
     font-family: 'Courier New', monospace;
+    text-decoration: none;
   }
   @keyframes titlePulse {
     0%, 100% { text-shadow: 0 0 10px rgba(0, 221, 255, 0.8), 0 0 20px rgba(0, 221, 255, 0.6), 0 0 30px rgba(0, 221, 255, 0.4); }
@@ -73,22 +69,23 @@
   }
   #gameContainer {
     position: relative;
-    border-radius: 20px;
+    border-radius: 15px;
     overflow: hidden;
     box-shadow: 
       0 0 20px rgba(0, 221, 255, 0.3),
       0 0 40px rgba(0, 136, 255, 0.2),
       0 20px 60px rgba(0, 0, 0, 0.8);
-    max-width: 95vw;
-    max-height: 95vh;
+    width: 100vw;
+    height: 70vh;
+    max-width: 100vw;
     border: 2px solid rgba(0, 221, 255, 0.3);
     z-index: 10;
   }
   canvas {
     display: block;
     background: linear-gradient(to bottom, #ffffff 0%, #f8f8f8 100%);
-    max-width: 100%;
-    max-height: 100%;
+    width: 100%;
+    height: 100%;
   }
   #scoreBoard {
     position: absolute;
@@ -214,43 +211,62 @@
   }
   @media (max-width: 768px) {
     #gameTitle {
-      font-size: 40px;
-      margin-bottom: 10px;
-      letter-spacing: 4px;
+      font-size: 48px;
+      margin-bottom: 15px;
+      letter-spacing: 6px;
     }
     #asciiCode {
-      font-size: 14px;
-      margin-top: 8px;
+      font-size: 10px;
+      margin-top: 10px;
       letter-spacing: 1px;
+      word-wrap: break-word;
+      max-width: 90vw;
+      line-height: 1.4;
+    }
+    #gameContainer {
+      width: 100vw;
+      height: 65vh;
+      border-radius: 0;
+      max-width: 100vw;
     }
     #scoreBoard {
-      font-size: 16px;
-      padding: 0 15px;
-      height: 50px;
+      font-size: 14px;
+      padding: 0 10px;
+      height: 45px;
     }
     .wit-text {
-      font-size: 12px;
-      letter-spacing: 3px;
+      font-size: 10px;
+      letter-spacing: 2px;
+    }
+    .player-name, .jarvis-name {
+      font-size: 14px;
     }
     #winner {
-      font-size: 50px;
+      font-size: 36px;
+      padding: 0 20px;
     }
     #instructions {
-      font-size: 13px;
-      bottom: 5px;
+      font-size: 11px;
+      bottom: 3px;
     }
     #startOverlay h2 {
-      font-size: 32px;
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+    #startOverlay .instructions-box {
+      padding: 20px;
+      max-width: 90vw;
     }
     #startOverlay .control-section {
-      font-size: 15px;
+      font-size: 13px;
+      margin: 10px 0;
     }
     #startOverlay .control-title {
-      font-size: 17px;
+      font-size: 15px;
     }
     #startOverlay button {
-      font-size: 20px;
-      padding: 12px 40px;
+      font-size: 18px;
+      padding: 12px 35px;
     }
   }
   .hidden {
