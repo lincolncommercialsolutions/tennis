@@ -713,10 +713,9 @@ function checkWin() {
       clearInterval(timerInterval);
       timerInterval = null;
     }
-    const finalTime = timerEl.textContent;
     winnerEl.textContent = playerScore >= winningScore 
-      ? `PLAYER WINS!\nBEAT J4RV1S\nTime: ${finalTime}` 
-      : `J4RV1S WINS!\nTime: ${finalTime}`;
+      ? `PLAYER WINS!\nBEAT J4RV1S` 
+      : `J4RV1S WINS!`;
     winnerEl.style.opacity = 1;
     winnerEl.style.textShadow = playerScore >= winningScore 
       ? "0 0 40px #00ddff, 0 0 80px #00ddff" 
