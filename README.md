@@ -10,7 +10,7 @@ A simple browser-based tennis (Pong-style) game that works on both desktop and m
 
 ### Controls
 
-- **Desktop**: Use ← → arrow keys or A/D keys to move your paddle up and down
+- **Desktop**: Use ← → arrow keys or A/D keys to move your paddle (← or A moves up, → or D moves down)
 - **Mobile**: Touch and drag on the right side of the screen to control your paddle
 
 ### Rules
